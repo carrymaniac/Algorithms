@@ -110,4 +110,112 @@ public class RBTree<T extends Comparable<T>> {
         x.right = y ;
         y.parent = x ;
     }
+
+    public void insert(T key){
+        RBNode<T> node = new RBNode<>(key,BLACK,null,null,null);
+        this.insert(node);
+    }
+
+    public void insert(RBNode<T> node){
+        //node的父节点
+        RBNode<T> current = null ;
+        RBNode<T> x = mRoot;
+
+        while(x!=null){
+            current = x ;
+            int cmp = node.key.compareTo(x.key);
+            if(cmp<0){
+                x = x.left;
+            }else {
+                x = x.right;
+            }
+        }
+        //找到要插入的父节点的位置
+        node.parent = current;
+        //判断该插在左边还是右边
+        if(current!=null){
+            //和父节点进行比较
+            int cmp =node.key.compareTo(current.key);
+            if(cmp<0){
+                //比父节点小
+                current.left = node ;
+            }else {
+                current.right = node ;
+            }
+            node.color = RED;
+
+        }else {
+            this.mRoot = node ;
+        }
+    }
+
+    /**
+     * 插入后进行修复工作
+     * @param node
+     */
+    public void insertFixUp(RBNode<T> node){
+        RBNode<T> parent,gparent;//定义父节点,祖父节点
+        //父节点不为空且父节点为红色
+        while (((parent = node.parent)!=null)&&isRed(parent)){
+            gparent = parent.parent;
+            //若父节点在祖父节点的左边
+            if(parent==gparent.left){
+                RBNode<T> uncle = gparent.right;
+                //case1.若叔叔为红色节点
+                if(uncle!=null&&isRed(uncle)){
+                    //此时将父,叔节点染黑,将祖父节点转为红,并且继续向上检查
+                    parent.color = BLACK ;
+                    uncle.color= BLACK;
+                    gparent.color = RED;
+                    node = gparent;
+                    continue;
+                }
+                //case2.此时叔叔为黑,且该节点为父节点的右节点,即不是同一根线上
+                if(node == parent.right){
+                    leftRotate(parent);
+                    RBNode<T> tmp = parent;
+                    parent = node;
+                    node = tmp;
+                }
+                //case3.此时叔叔为黑,且该节点为父节点的左节点,即在同一根线上
+                parent.color = BLACK;
+                gparent.color = RED;
+                rightRotate(gparent);
+            }else {
+                //若父亲节点是祖父节点的右子节点，与上面的完全相反，本质一样的
+                RBNode<T> uncle = gparent.left;
+                //case1:叔叔节点也是红色
+                if (uncle != null & isRed(uncle)) {
+                    parent.color = BLACK;
+                    uncle.color = BLACK;
+                    gparent.color = RED;
+                    node = gparent;
+                    continue;
+                }
+
+                //case2: 叔叔节点是黑色的，且当前节点是左子节点
+                if (node == parent.left) {
+                    rightRotate(parent);
+                    RBNode<T> tmp = parent;
+                    parent = node;
+                    node = tmp;
+                }
+                //case3: 叔叔节点是黑色的，且当前节点是右子节点
+                parent.color = BLACK;
+                gparent.color = RED;
+                leftRotate(gparent);
+            }
+        }
+        //将根节点设置为黑色
+        this.mRoot.color = BLACK;
+    }
+
+
+    boolean isRed(RBNode<T> parent) {
+        if(parent.color == RED){
+            return true;
+        }else {
+            return false;
+        }
+    }
 }
