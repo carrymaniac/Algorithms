@@ -17,23 +17,25 @@ public class myQuickSort {
         }
     }
        private static int partition(int[] number,int start,int end){
-        int pivot = number[start];
-        do {
-            while (start<end&&number[end]>=pivot){
+        int a = number[start];
+        do{
+            while (number[end]>=a&&start<end){
                 end--;
             }
-            if(start<end){
+            //交换基准值和找到的end值位置
+            if (start<end){
                 number[start]=number[end];
             }
-            //在左侧找一个大于pivot的值
-            while (start<end&&number[start]<=pivot){
+            //找到一个比基准值小的值,需要从左边找一个比基准值大的值
+            while (number[start]<=a&&start<end){
                 start++;
             }
-            if(start<end){
+            if (start<end){
                 number[end]=number[start];
             }
+
         }while (start<end);
-        number[start] = pivot;
+        number[start]=a;
         return start;
        }
 

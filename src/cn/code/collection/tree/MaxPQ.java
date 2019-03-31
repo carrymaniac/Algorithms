@@ -54,7 +54,7 @@ public class MaxPQ {
      * @return
      */
     private int maxChildren(int index,int end){
-        if(index*2+2<end&&heap[index*2+2]>heap[index*2+1]){
+        if(index*2+2<=end&&heap[index*2+2]>heap[index*2+1]){
             //存在右节点且比左节点大
             return index*2+2;
         }else {
