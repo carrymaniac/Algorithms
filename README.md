@@ -1,2 +1,2 @@
 # Algorithms
-the practice of Algorithm
+the practice of Algorithm and LeetCode

@@ -1,10 +1,16 @@
 package cn.code.collection.tree;
 
+import org.w3c.dom.Node;
+
+import java.sql.Array;
+import java.util.ArrayList;
+
 /**
  * AVL树是高度平衡的而二叉树。它的特点是：AVL树中任何节点的两个子树的高度最大差别为1。
  */
 public class AVLTree<T extends Comparable<T>> {
-    private AVLTreeNode mroot;
+    private  int size = 0 ;
+    private AVLTreeNode<T> mroot;
     class AVLTreeNode<T extends Comparable<T>>{
         T key;  //关键值
         int height; //高度
@@ -15,6 +21,7 @@ public class AVLTree<T extends Comparable<T>> {
             this.key = key;
             this.left = left;
             this.right = right;
+            this.height = 1 ;
         }
     }
 
@@ -62,6 +69,7 @@ public class AVLTree<T extends Comparable<T>> {
         k1 = k2.left;
         k2.left = k1.right;
         k1.right = k2;
+        //记得先更新y的高度值,再更新x的高度值,因为x的高度值取决于y
         k2.height = max(height(k2.left),height(k2.right))+1;
         k1.height = max( height(k1.left), k2.height) + 1;
         return k1;
@@ -81,6 +89,8 @@ public class AVLTree<T extends Comparable<T>> {
      *      *   ly ry               lx ly
      * @param k2
      * @return
+     *
+     * 也叫leftRotate
      */
     private AVLTreeNode<T> rightRightRotation(AVLTreeNode<T> k2){
         AVLTreeNode<T> k1;
@@ -115,38 +125,110 @@ public class AVLTree<T extends Comparable<T>> {
 
         return rightRightRotation(k3);
     }
-
-
-    private AVLTreeNode<T> insert(AVLTreeNode<T> node,T key){
-        if(node == null ){
-            //已经循环到树的尽头
-            node = new AVLTreeNode<T>(key,null,null);
-            if(node==null){
-                System.out.println("ERROR:creat avltree node failed!");
-                return null;
-            }
-        }else {
-            int cmp = key.compareTo(node.key);
-            if(cmp<0){
-                //小于根节点
-                node.left =insert(node.left,key);
-                //插入完成后,如果失衡,需要进行调节
-                if(height(node.left)-height(node.right) == 2){
-                    if(key.compareTo(node.left.key)<0){
-                        //新插入的值是
-                        node = leftLeftRotation(node);
-                    }else
-                        node = leftRightRotation(node);
-                }
-            }else if(cmp>0){
-
-            }else{//cmp==0
-                System.out.println("添加失败：不允许添加相同的节点！");
-            }
+    public void add(T key){
+        mroot = add(mroot,key);
+    }
+    /**
+     * 添加新的节点
+     * @param node
+     * @param key
+     * @return
+     */
+    public AVLTreeNode<T> add(AVLTreeNode<T> node,T key){
+        if(node == null){
+            size++;
+            return new AVLTreeNode<T>(key,null,null);
         }
-        node.height = max( height(node.left), height(node.right)) + 1;
+        if(key.compareTo(node.key)<0){
+            node.left = add(node.left,key);
+        }else if(key.compareTo(node.key)>0){
+            node.right = add(node.right,key);
+        }else {
+            System.out.println("这个值已经存在了");
+        }
+        //更新自己的高度
+        node.height = 1+Math.max(height(node.left),height(node.right));
+        //计算平衡因子
+        int balanceFactor = getBalanceFactor(node);
+        //LL
+        if(balanceFactor>1&&getBalanceFactor(node.left)>=0){
+            return leftLeftRotation(node);
+        }
+        //RR
+        if(balanceFactor<-1&&getBalanceFactor(node.right)<=0){
+            return rightRightRotation(node);
+        }
+        //LR
+        if(balanceFactor>1&&getBalanceFactor(node.left)<0){
+            return leftRightRotation(node);
+        }
+        //RL
+        if(balanceFactor<-1&&getBalanceFactor(node.right)>0){
+            return rightLeftRotation(node);
+        }
 
         return node;
     }
 
+
+    /**
+     * 判断一棵树是否为二叉搜索树
+     * @return
+     */
+    public boolean isBST(){
+        ArrayList<T> keys = new ArrayList<>();
+        inOrder(mroot,keys);
+        for(int i= 1 ;i<keys.size();i++){
+            if(keys.get(i-1).compareTo(keys.get(i))>0){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //中序遍历,并且存放在数组中
+    private void inOrder(AVLTreeNode<T> node ,ArrayList<T> keys){
+        if(node == null)
+            return;
+        inOrder(node.left,keys);
+        keys.add(node.key);
+        inOrder(node.right,keys);
+    }
+
+    /**
+     * 判断一颗树是不是平衡二叉树
+     * @return
+     */
+    public boolean isBalanced(){
+        return isBalanced(mroot);
+    }
+
+    /**
+     *
+     * @param node
+     * @return
+     */
+    private boolean isBalanced(AVLTreeNode<T> node){
+        if(node == null){
+            return true;
+        }
+        int balanceFactor = getBalanceFactor(node);
+        if(Math.abs(balanceFactor)>1){
+            //平衡因子大于1
+            return false;
+        }
+        return isBalanced(node.left)&&isBalanced(node.right);
+    }
+
+    /**
+     * 计算平衡因子
+     * @param node
+     * @return
+     */
+    private int getBalanceFactor(AVLTreeNode<T> node){
+        if(node == null){
+            return 0;
+        }
+        return height(node.right)-height(node.left);
+    }
 }
