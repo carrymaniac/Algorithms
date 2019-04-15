@@ -1,4 +1,4 @@
-package cn.code.sort;
+package cn.code.sort.mySort;
 
 import java.util.Arrays;
 

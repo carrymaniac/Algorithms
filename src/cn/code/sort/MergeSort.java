@@ -45,6 +45,7 @@ public class MergeSort {
             while(j<=right){//将右边的剩余元素填充进temp中
                 temp[t++] = arr[j++];
             }
+            //完成拷贝 将数组内容拷贝到原数组
             t = 0 ;
             while(left<=right){
                 arr[left++] = temp[t++];
