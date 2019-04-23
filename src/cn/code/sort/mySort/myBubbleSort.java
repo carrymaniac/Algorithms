@@ -14,7 +14,7 @@ public class myBubbleSort <T extends Comparable<T>> extends Sort<T> {
     public void sort(T[] nums) {
         int N = nums.length;
         boolean hasSort = false;
-        for(int i = N-1;i>0;i--){
+        for(int i = N-1;i>0&&!hasSort;i--){
             hasSort =true;
             for(int j = 0;j<i;j++){
                 if(less(nums[j+1],nums[j])){
